@@ -7,6 +7,7 @@ import java.util.*
 
 private val HEADLESS_FLAG = "--headless"
 private val CAPSULE_DEBUG_FLAG = "--capsule-debug"
+private val JOLOKIA_FLAG = "--jolokia"
 
 private val os by lazy {
     val osName = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH)
@@ -30,14 +31,15 @@ private object monitoringPortAlloc {
 fun main(args: Array<String>) {
     val startedProcesses = mutableListOf<Process>()
     val headless = GraphicsEnvironment.isHeadless() || args.contains(HEADLESS_FLAG)
+    val exposeJolokia = args.contains(JOLOKIA_FLAG)
     val capsuleDebugMode = args.contains(CAPSULE_DEBUG_FLAG)
     val workingDir = File(System.getProperty("user.dir"))
     val javaArgs = args.filter { it != HEADLESS_FLAG && it != CAPSULE_DEBUG_FLAG }
-    val jvmArgs = if (capsuleDebugMode) listOf("-Dcapsule.log=verbose") else emptyList<String>()
+    val jvmArgs = if (capsuleDebugMode) listOf("-Dcapsule.log=verbose") else emptyList()
     println("Starting nodes in $workingDir")
     workingDir.listFiles { file -> file.isDirectory }.forEach { dir ->
         listOf(NodeJarType, WebJarType).forEach { jarType ->
-            jarType.acceptDirAndStartProcess(dir, headless, javaArgs, jvmArgs)?.let { startedProcesses += it }
+            jarType.acceptDirAndStartProcess(dir, headless, exposeJolokia, javaArgs, jvmArgs)?.let { startedProcesses += it }
         }
     }
     println("Started ${startedProcesses.size} processes")
@@ -46,7 +48,7 @@ fun main(args: Array<String>) {
 
 private abstract class JarType(private val jarName: String) {
     internal abstract fun acceptNodeConf(nodeConf: File): Boolean
-    internal fun acceptDirAndStartProcess(dir: File, headless: Boolean, javaArgs: List<String>, jvmArgs: List<String>): Process? {
+    internal fun acceptDirAndStartProcess(dir: File, headless: Boolean, jolokia: Boolean, javaArgs: List<String>, jvmArgs: List<String>): Process? {
         if (!File(dir, jarName).exists()) {
             return null
         }
@@ -54,7 +56,7 @@ private abstract class JarType(private val jarName: String) {
             return null
         }
         val debugPort = debugPortAlloc.next()
-        val monitoringPort = monitoringPortAlloc.next()
+        val monitoringPort = if (jolokia) monitoringPortAlloc.next() else null
         println("Starting $jarName in $dir on debug port $debugPort")
         val process = (if (headless) ::HeadlessJavaCommand else ::TerminalWindowJavaCommand)(jarName, dir, debugPort, monitoringPort, javaArgs, jvmArgs).start()
         if (os == OS.MACOS) Thread.sleep(1000)

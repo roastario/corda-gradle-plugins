@@ -1,9 +1,9 @@
 package net.corda.plugins
 
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigObject
 import com.typesafe.config.ConfigRenderOptions
 import com.typesafe.config.ConfigValueFactory
-import com.typesafe.config.ConfigObject
 import groovy.lang.Closure
 import net.corda.cordform.CordformNode
 import net.corda.cordform.RpcSettings
@@ -178,20 +178,27 @@ class Node(private val project: Project) : CordformNode() {
      */
     private fun installAgentJar() {
         // TODO: improve how we re-use existing declared external variables from root gradle.build
-        val jolokiaVersion = try { project.rootProject.ext<String>("jolokia_version") } catch (e: Exception) { "1.3.7" }
-        val agentJar = project.configuration("runtime").files {
+        val jolokiaVersion = try {
+            project.rootProject.ext<String>("jolokia_version")
+        } catch (e: Exception) {
+            "1.3.7"
+        }
+        val collectedJolokiaJar = project.configuration("runtime").files {
             (it.group == "org.jolokia") &&
                     (it.name == "jolokia-jvm") &&
                     (it.version == jolokiaVersion)
             // TODO: revisit when classifier attribute is added. eg && (it.classifier = "agent")
-        }.first()  // should always be the jolokia agent fat jar: eg. jolokia-jvm-1.3.7-agent.jar
-        project.logger.info("Jolokia agent jar: $agentJar")
-        if (agentJar.isFile) {
-            val driversDir = File(nodeDir, "drivers")
-            project.copy {
-                it.apply {
-                    from(agentJar)
-                    into(driversDir)
+        }
+        if (!collectedJolokiaJar.isEmpty()) {
+            val agentJar = collectedJolokiaJar.first()
+            project.logger.info("Jolokia agent jar: $agentJar")
+            if (agentJar.isFile) {
+                val driversDir = File(nodeDir, "drivers")
+                project.copy {
+                    it.apply {
+                        from(agentJar)
+                        into(driversDir)
+                    }
                 }
             }
         }
