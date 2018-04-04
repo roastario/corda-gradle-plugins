@@ -26,7 +26,6 @@ ADD --chown=corda:corda network-parameters      /opt/corda/
 ADD --chown=corda:corda cordapps/               /opt/corda/cordapps
 ADD --chown=corda:corda additional-node-infos/  /opt/corda/additional-node-infos
 ADD --chown=corda:corda certificates/           /opt/corda/certificates
-ADD --chown=corda:corda drivers/                /opt/corda/drivers
 ADD --chown=corda:corda persistence*            /opt/corda/
 
 COPY run-corda.sh /run-corda.sh

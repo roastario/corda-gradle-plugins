@@ -1,12 +1,11 @@
 package net.corda.plugins
 
-import org.gradle.api.*
-import org.gradle.api.tasks.bundling.Jar
-import org.gradle.api.tasks.javadoc.Javadoc
+import net.corda.plugins.bintray.BintrayConfigExtension
+import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.MavenPom
-import net.corda.plugins.bintray.*
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.bundling.Jar
 
 /**
  * A utility plugin that when applied will automatically create source and javadoc publishing tasks

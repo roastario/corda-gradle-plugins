@@ -1,9 +1,9 @@
 package net.corda.plugins
 
-import org.gradle.api.Project
 import org.gradle.api.Plugin
-import org.gradle.api.tasks.testing.Test
+import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.testing.Test
 
 /**
  * QuasarPlugin creates a "quasar" configuration and adds quasar as a dependency.

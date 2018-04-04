@@ -8,13 +8,12 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.tasks.CompileClasspath;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.OutputFiles;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.InvocationTargetException;
@@ -26,8 +25,10 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
-import static java.util.Collections.*;
-import static java.util.stream.Collectors.*;
+import static java.util.Collections.sort;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 @SuppressWarnings("unused")
 public class ScanApi extends DefaultTask {

@@ -80,6 +80,10 @@ class Node(private val project: Project) : CordformNode() {
         config = config.withValue("sshd.port", ConfigValueFactory.fromAnyRef(sshdPort))
     }
 
+    fun compatibilityZoneURL(zoneUrl: String?){
+        config = config.withValue("compatibilityZoneURL", ConfigValueFactory.fromAnyRef(zoneUrl))
+    }
+
     /**
      * The webserver JAR to be used by this node.
      *
@@ -150,7 +154,7 @@ class Node(private val project: Project) : CordformNode() {
             project.logger.info("Using custom webserver: $webserverJar.")
             File(webserverJar)
         }
-        
+
         project.copy {
             it.apply {
                 from(webJar)
@@ -295,7 +299,7 @@ class Node(private val project: Project) : CordformNode() {
      *
      * @return List of this node's cordapps.
      */
-    private fun getCordappList(): Collection<File> {
+    fun getCordappList(): Collection<File> {
         // Cordapps can sometimes contain a GString instance which fails the equality test with the Java string
         @Suppress("RemoveRedundantCallsOfConversionMethods")
         val cordapps: List<String> = cordapps.map { it.toString() }
